@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Solar Cell Cleaning Systems</title>
+<style>
+  :root{
+    --bg:#f5f6f8;
+    --card:#ffffff;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --ring:#d1d5db;
+    --green:#22c55e;
+    --green-600:#16a34a;
+    --gray:#9ca3af;
+    --gray-200:#e5e7eb;
+  }
+  html,body{height:100%}
+  body{
+    margin:0;
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans Thai", "Noto Sans", "Liberation Sans", sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
+  .container{max-width:980px;margin:24px auto;padding:0 16px}
+  header{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap
+  }
+  h1{font-size:22px;margin:0 8px 0 0}
+  /* status badge */
+  .status-badge{
+    padding:8px 16px;border-radius:10px;font-weight:600;
+    border:1px solid transparent; user-select:none;
+    min-width:100px;text-align:center;
+    transition: background-color .15s ease, color .15s ease, border-color .15s ease;
+  }
+  .status-badge.online{
+    background: #e8f8ee;
+    color: var(--green-600);
+    border-color:#bfe8ce;
+  }
+  .status-badge.offline{
+    background:#f3f4f6; /* gray */
+    color:#374151;
+    border-color:#e5e7eb;
+  }
+
+  /* tabs (Wash only for now) */
+  .tabs{display:flex;gap:16px;margin-top:16px;border-bottom:2px solid var(--gray-200)}
+  .tab{padding:10px 8px;border-bottom:3px solid transparent;font-weight:600;color:#374151}
+  .tab.active{color:#0f172a;border-color:#3b82f6}
+
+  /* battery cards */
+  .grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:18px}
+  @media (min-width:700px){ .grid{ grid-template-columns:1fr 1fr; } }
+  .card{
+    background:var(--card);border:1px solid var(--ring);border-radius:12px;
+    padding:16px;box-shadow:0 1px 2px rgba(0,0,0,.04);
+  }
+  .battery-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .battery-name{font-weight:700}
+  .percent{font-variant-numeric:tabular-nums;color:#111827}
+  .bar{
+    height:10px;border-radius:8px;background:#e5e7eb;overflow:hidden
+  }
+  .bar > .fill{
+    height:100%;width:0%;background:var(--green);transition:width .4s ease
+  }
+  .muted{color:var(--muted);font-size:12px}
+
+  /* wash row with switch */
+  .wash-row{
+    background:var(--card);border:1px solid var(--ring);border-radius:12px;
+    padding:14px 16px;margin-top:18px;display:flex;align-items:center;justify-content:space-between
+  }
+  .wash-title{font-weight:700}
+  .wash-state{display:flex;align-items:center;gap:8px}
+  .dot{width:8px;height:8px;border-radius:50%;background:#9ca3af}
+  .dot.on{background:var(--green)}
+  /* simple iOS-like switch */
+  .switch{
+    --w:48px; --h:26px;
+    appearance:none; width:var(--w); height:var(--h);
+    background:#e5e7eb; border-radius:999px; position:relative; outline:none;
+    transition: background-color .2s ease, box-shadow .2s ease; cursor:pointer; border:1px solid #d1d5db;
+  }
+  .switch:after{
+    content:""; position:absolute; top:2px; left:2px; width:22px; height:22px;
+    border-radius:999px; background:white; box-shadow:0 1px 2px rgba(0,0,0,.25);
+    transition: transform .2s ease;
+  }
+  .switch:checked{ background:#bbf7d0; border-color:#a7f3d0 }
+  .switch:checked:after{ transform: translateX(22px); }
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+</style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>Solar Cell Cleaning Systems</h1>
+      <!-- เริ่มต้นแบบ OFFLINE -->
+      <div id="statusBadge" class="status-badge offline" aria-live="polite">Offline</div>
+    </header>
+
+    <nav class="tabs">
+      <div class="tab active">Wash</div>
+    </nav>
+
+    <section class="grid" aria-label="Battery levels">
+      <article class="card">
+        <div class="battery-head">
+          <div class="battery-name">A</div>
+          <div class="percent"><span id="pctA">100</span>%</div>
+        </div>
+        <div class="bar" aria-label="Battery A">
+          <div id="fillA" class="fill" style="width: 100%"></div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="battery-head">
+          <div class="battery-name">B</div>
+          <div class="percent"><span id="pctB">100</span>%</div>
+        </div>
+        <div class="bar" aria-label="Battery B">
+          <div id="fillB" class="fill" style="width: 100%"></div>
+        </div>
+      </article>
+    </section>
+
+    <div class="wash-row">
+      <div>
+        <div class="wash-title">Wash</div>
+        <div class="wash-state">
+          <span id="washDot" class="dot" aria-hidden="true"></span>
+          <span class="muted" id="washText">OFF</span>
+        </div>
+      </div>
+      <label>
+        <span class="sr-only">สลับ Wash</span>
+        <input id="washSwitch" class="switch" type="checkbox" />
+      </label>
+    </div>
+  </div>
+
+<script>
+  // ------- CONFIG ที่อยากแก้เปอร์เซ็นต์แบตได้ง่าย ๆ --------
+  const batteryA = 100; // เปอร์เซ็นต์เริ่มต้น
+  const batteryB = 100;
+
+  // ตั้งค่าเริ่มต้น UI (เริ่มแบบ OFFLINE)
+  const badge = document.getElementById('statusBadge');
+  const washSwitch = document.getElementById('washSwitch');
+  const washText = document.getElementById('washText');
+  const washDot  = document.getElementById('washDot');
+
+  // อัปเดตแบตตามค่า config
+  function setBattery(idFill, idPct, value){
+    const v = Math.max(0, Math.min(100, Number(value) || 0));
+    document.getElementById(idFill).style.width = v + '%';
+    document.getElementById(idPct).textContent = v.toFixed(0);
+  }
+  setBattery('fillA', 'pctA', batteryA);
+  setBattery('fillB', 'pctB', batteryB);
+
+  // ฟังก์ชันสลับสถานะ Online/Offline ตามสวิตช์ Wash
+  function syncStatus(){
+    const isOn = washSwitch.checked;
+
+    // ตัวหนังสือและจุดบอกสถานะของแถว Wash
+    washText.textContent = isOn ? 'ON' : 'OFF';
+    washDot.classList.toggle('on', isOn);
+
+    // ป้ายสถานะด้านบน
+    if(isOn){
+      badge.textContent = 'Online';
+      badge.classList.remove('offline');
+      badge.classList.add('online');
+    }else{
+      badge.textContent = 'Offline';
+      badge.classList.remove('online');
+      badge.classList.add('offline');
+    }
+  }
+  // initial render once
+  syncStatus();
+
+  // เมื่อผู้ใช้กดสวิตช์
+  washSwitch.addEventListener('change', syncStatus);
+</script>
+</body>
+</html>

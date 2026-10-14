@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solar Cell Cleaning Systems</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --card:#fff; --text:#0f172a; --muted:#64748b;
+    --gray:#e5e7eb; --gray-dot:#9ca3af; --green:#22c55e; --red:#ef4444;
+    --shadow:0 4px 14px rgba(15,23,42,.08);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font-family:"Segoe UI",system-ui,-apple-system,"Noto Sans Thai",sans-serif;padding:8px}
+  .wrap{max-width:1100px;margin:0 auto}
+  .hidden{display:none !important}
+
+  /* ===== หน้า Login ===== */
+  #loginPage{min-height:90vh;display:grid;place-items:center}
+  .login-card{width:100%;max-width:380px;background:var(--card);border-radius:24px;
+    box-shadow:var(--shadow);padding:32px 28px;text-align:center}
+  .login-card .logo{width:64px;height:64px;border-radius:50%;background:#eef2ff;margin:0 auto 14px;
+    display:grid;place-items:center}
+  .login-card .logo svg{width:32px;height:32px}
+  .login-card h1{font-size:22px;margin:0 0 4px}
+  .login-card p{margin:0 0 20px;color:var(--muted);font-size:14px}
+  .login-card input{width:100%;padding:13px 16px;border:1px solid #d1d5db;border-radius:14px;
+    font-size:16px;font-family:inherit;outline:none;background:#fff}
+  .login-card input:focus{border-color:#818cf8;box-shadow:0 0 0 3px #e0e7ff}
+  .login-card button{width:100%;margin-top:14px;padding:13px;border:0;border-radius:14px;
+    background:var(--text);color:#fff;font-size:16px;font-weight:700;cursor:pointer;font-family:inherit}
+  .login-card button:disabled{opacity:.6;cursor:not-allowed}
+  #loginErr{color:var(--red);font-size:14px;min-height:20px;margin-top:10px}
+
+  /* ===== Header ===== */
+  header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin:8px 0 14px}
+  h1.main{font-size:22px;margin:0;font-weight:800}
+  .head-right{display:flex;align-items:center;gap:10px}
+  #statusPill{padding:12px 32px;border-radius:999px;background:#f1f2f4;font-weight:700;
+    font-size:18px;color:#374151;box-shadow:var(--shadow);transition:.25s;white-space:nowrap}
+  #statusPill.online{background:var(--green);color:#fff}
+  #statusPill.emergency{background:var(--red);color:#fff}
+  #logoutBtn{border:0;background:var(--card);box-shadow:var(--shadow);border-radius:999px;
+    padding:12px 18px;font-weight:700;font-size:15px;color:#374151;cursor:pointer;font-family:inherit}
+
+  nav{display:inline-flex;gap:6px;background:var(--card);padding:7px;border-radius:999px;
+    box-shadow:var(--shadow);margin-bottom:16px}
+  .tab{display:flex;align-items:center;gap:8px;border:1px solid transparent;background:none;
+    padding:10px 18px;border-radius:999px;font-size:17px;font-weight:700;color:#374151;cursor:pointer;
+    font-family:inherit}
+  .tab.active{background:#eef2ff;border-color:#dbe3ff;color:#000}
+  .tab svg{width:18px;height:18px}
+  .dot{width:10px;height:10px;border-radius:50%;background:var(--gray-dot);transition:.25s}
+  .dot.on{background:var(--green);box-shadow:0 0 8px var(--green)}
+
+  .card{background:var(--card);border-radius:24px;box-shadow:var(--shadow);padding:22px 24px;margin-bottom:16px}
+  .card h2{margin:0 0 8px;font-size:30px;font-weight:800}
+  .small{font-size:14px;color:var(--muted)}
+  .bar{height:16px;background:var(--gray);border-radius:999px;margin-top:12px;overflow:hidden;
+    border:1px solid #d1d5db}
+  .bar>div{height:100%;background:var(--green);border-radius:999px;transition:width .4s}
+
+  .row{display:flex;justify-content:space-between;align-items:center;background:var(--card);
+    border-radius:18px;box-shadow:var(--shadow);padding:16px 18px;margin-bottom:14px}
+  .row b{font-size:18px;display:block}
+  .row.disabled{opacity:.5}
+  .switch{width:58px;height:30px;border-radius:999px;background:var(--gray);border:1px solid #d1d5db;
+    position:relative;cursor:pointer;transition:.25s;padding:0}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:24px;height:24px;border-radius:50%;
+    background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.3);transition:.25s}
+  .switch.on{background:var(--green)} .switch.red.on{background:var(--red)}
+  .switch.on::after{left:30px}
+  .switch:disabled{cursor:not-allowed}
+
+  .device{display:flex;align-items:center;gap:18px}
+  .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  .item{display:flex;align-items:center;gap:14px;background:var(--card);border-radius:18px;
+    box-shadow:var(--shadow);padding:14px 16px}
+  .icon{width:58px;height:58px;border-radius:50%;background:#f8fafc;border:1px solid #eef0f3;
+    display:grid;place-items:center;flex:none}
+  .icon svg{width:30px;height:30px}
+  .title{display:flex;align-items:center;gap:8px;font-weight:700;font-size:18px}
+  .led{width:26px;height:26px;border-radius:50%;background:var(--gray);flex:none;transition:.25s}
+  .led.on{background:var(--green);box-shadow:0 0 12px var(--green)}
+  .sub{font-size:14px;color:var(--muted);margin-top:2px}
+  .chip{width:124px;height:98px;border:2px dashed #94a3b8;border-radius:18px;background:#e5e9ef;
+    display:grid;place-items:center;flex:none}
+  .chip i{width:100px;height:72px;border-radius:8px;background:#d0e1fd;border:1px solid #93a8c9;
+    display:grid;place-items:center}
+  .chip i::after{content:"";width:26px;height:26px;border-radius:4px;background:#64748b}
+  .mcu .title{font-size:24px;font-weight:800}
+  .mcu .state{display:flex;align-items:center;gap:8px;font-size:20px;margin-top:2px}
+
+  /* ===== Modal Emergency ===== */
+  #modalBg{position:fixed;inset:0;background:rgba(15,23,42,.45);display:grid;place-items:center;
+    padding:16px;z-index:50}
+  .modal{width:100%;max-width:380px;background:#fff;border-radius:12px;padding:28px 24px 24px;
+    box-shadow:0 20px 50px rgba(0,0,0,.3);text-align:center;border-top:6px solid var(--red)}
+  .modal h3{margin:0 0 6px;font-size:22px}
+  .modal p{margin:0 0 24px;color:var(--muted);font-size:14px}
+  .modal .btns{display:flex;justify-content:center;gap:16px}
+  .modal button{flex:1;max-width:150px;padding:12px 0;border:0;border-radius:10px;font-size:16px;
+    font-weight:700;cursor:pointer;font-family:inherit}
+  #confirmBtn{background:var(--red);color:#fff}
+  #cancelBtn{background:#d1d5db;color:#374151}
+
+  @media(max-width:640px){
+    .grid{grid-template-columns:1fr} h1.main{font-size:18px}
+    #statusPill{padding:10px 18px;font-size:16px} .tab{padding:8px 12px;font-size:15px}
+    .card h2{font-size:26px} #logoutBtn{padding:10px 14px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ================= หน้า Login ================= -->
+<div id="loginPage">
+  <form class="login-card" id="loginForm" autocomplete="off">
+    <div class="logo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#4f46e5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+    </div>
+    <h1>Solar Cell Cleaning Systems</h1>
+    <p>กรุณากรอกรหัสผ่านเพื่อเข้าสู่ระบบควบคุม</p>
+    <input type="password" id="pwInput" placeholder="Password" autofocus>
+    <button type="submit" id="loginBtn">Login</button>
+    <div id="loginErr"></div>
+  </form>
+</div>
+
+<!-- ================= หน้าควบคุมหลัก ================= -->
+<div class="wrap hidden" id="app">
+  <header>
+    <h1 class="main">Solar Cell Cleaning Systems</h1>
+    <div class="head-right">
+      <div id="statusPill">Offline</div>
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <nav>
+    <button class="tab active" data-tab="system">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="3" width="18" height="7" rx="2"/><rect x="3" y="14" width="18" height="7" rx="2"/><path d="M7 6.5h.01M7 17.5h.01"/></svg>
+      system
+    </button>
+    <button class="tab" data-tab="robot"><span class="dot" id="tabDotRobot"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="7" width="14" height="13" rx="3"/><path d="M9 4h6M12 4v3M9.5 13h.01M14.5 13h.01"/></svg>
+      Robot
+    </button>
+    <button class="tab" data-tab="station"><span class="dot" id="tabDotStation"></span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="7" width="14" height="13" rx="3"/><path d="M9 4h6M12 4v3M9.5 13h.01M14.5 13h.01"/></svg>
+      Station
+    </button>
+  </nav>
+
+  <!-- ===== หน้า 1: system ===== -->
+  <section id="page-system">
+    <div class="card"><h2>Robot</h2>
+      <div class="small">battery percentage : <span id="batRobotTxt">60</span>%</div>
+      <div class="bar"><div id="batRobotBar"></div></div></div>
+    <div class="card"><h2>station</h2>
+      <div class="small">battery percentage : <span id="batStationTxt">80</span>%</div>
+      <div class="bar"><div id="batStationBar"></div></div></div>
+
+    <div class="row" id="washRow">
+      <div><b>Wash</b><span class="small" id="washTxt">OFF</span></div>
+      <button class="switch" id="washSwitch" aria-label="Wash"></button>
+    </div>
+    <div class="row">
+      <div><b>Emergency</b><span class="small" id="emTxt">OFF</span></div>
+      <button class="switch red" id="emSwitch" aria-label="Emergency"></button>
+    </div>
+  </section>
+
+  <!-- ===== หน้า 2: Robot ===== -->
+  <section id="page-robot" class="hidden">
+    <div class="card"><h2>Robot</h2>
+      <div class="small">battery percentage : <span class="batRobotTxt">60</span>%</div>
+      <div class="bar"><div class="batRobotBar"></div></div></div>
+    <div class="row device mcu" style="justify-content:flex-start">
+      <div class="chip"><i></i></div>
+      <div><div class="title">Microcontroller board</div><div class="sub">ESP32</div>
+        <div class="state"><span class="led" data-dev="robot"></span><span data-txt="robot">Off</span></div></div>
+    </div>
+    <div class="grid">
+      <div class="item"><div class="icon" data-icon="switch"></div>
+        <div><div class="title"><span class="led" data-dev="robot"></span>Front Limit Switch</div>
+        <div class="sub" data-txt="robot">Off</div></div></div>
+      <div class="item"><div class="icon" data-icon="switch"></div>
+        <div><div class="title"><span class="led" data-dev="robot"></span>Rear Limit Switch</div>
+        <div class="sub" data-txt="robot">Off</div></div></div>
+    </div>
+  </section>
+
+  <!-- ===== หน้า 3: Station ===== -->
+  <section id="page-station" class="hidden">
+    <div class="card"><h2>Station</h2>
+      <div class="small">battery percentage : <span class="batStationTxt">80</span>%</div>
+      <div class="bar"><div class="batStationBar"></div></div></div>
+    <div class="row device mcu" style="justify-content:flex-start">
+      <div class="chip"><i></i></div>
+      <div><div class="title">Microcontroller board</div><div class="sub">ESP32</div>
+        <div class="state"><span class="led" data-dev="station"></span><span data-txt="station">Off</span></div></div>
+    </div>
+    <div class="grid">
+      <div class="item"><div class="icon" data-icon="switch"></div>
+        <div><div class="title"><span class="led" data-dev="station"></span>Front Limit Switch</div>
+        <div class="sub" data-txt="station">Off</div></div></div>
+      <div class="item"><div class="icon" data-icon="switch"></div>
+        <div><div class="title"><span class="led" data-dev="station"></span>Rear Limit Switch</div>
+        <div class="sub" data-txt="station">Off</div></div></div>
+      <div class="item"><div class="icon" data-icon="sensor"></div>
+        <div><div class="title"><span class="led" data-dev="station"></span>Top Sensor</div>
+        <div class="sub">TOF400C VL53L1X</div></div></div>
+      <div class="item"><div class="icon" data-icon="sensor"></div>
+        <div><div class="title"><span class="led" data-dev="station"></span>Bottom Sensor</div>
+        <div class="sub">TOF400C VL53L1X</div></div></div>
+    </div>
+  </section>
+</div>
+
+<!-- ================= Pop-up ยืนยัน Emergency ================= -->
+<div id="modalBg" class="hidden">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <h3 id="modalTitle">Activate Emergency Alarm</h3>
+    <p>ระบบทั้งหมดจะหยุดทำงานทันที</p>
+    <div class="btns">
+      <button id="confirmBtn">Confirm</button>
+      <button id="cancelBtn">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- ตั้งค่า ---------- */
+const CONFIG = {
+  // รหัสผ่านเริ่มต้นคือ  solar1234   (เก็บเป็นค่า SHA-256 ไม่ได้เก็บเป็นข้อความตรงๆ)
+  // วิธีเปลี่ยนรหัส: ดูคำอธิบายด้านล่างของคำตอบ
+  passwordHash: 'd7dc0b327d5b303f307e2cbb01c12f5dffc2cebe1144b838c28627fa4be3f770',
+  batteryRobot: 60,      // % แบตเตอรี่ Robot  (ภายหลังเอามาจาก ESP32 ได้)
+  batteryStation: 80,    // % แบตเตอรี่ Station
+  stepMs: 3000           // ไฟติดนานกี่ ms ต่อ 1 อุปกรณ์
+};
+
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+
+/* =====================================================
+   LOGIN
+   ===================================================== */
+// SHA-256 แบบเขียนเอง (ไม่พึ่ง crypto.subtle จึงใช้ได้ทุกวิธีที่เปิดไฟล์ รวมถึง file:// และ http://IP)
+function sha256(str){
+  const rr=(v,a)=>(v>>>a)|(v<<(32-a));
+  const bytes=Array.from(new TextEncoder().encode(str));
+  const len=bytes.length*8;
+  bytes.push(0x80);
+  while(bytes.length%64!==56) bytes.push(0);
+  const hi=Math.floor(len/4294967296), lo=len>>>0;
+  for(let i=3;i>=0;i--) bytes.push((hi>>>(i*8))&255);
+  for(let i=3;i>=0;i--) bytes.push((lo>>>(i*8))&255);
+  const K=[],H=[]; let n=0;
+  for(let c=2;n<64;c++){
+    let p=true; for(let d=2;d*d<=c;d++) if(c%d===0){p=false;break;}
+    if(p){ if(n<8) H[n]=(Math.pow(c,.5)%1)*4294967296|0; K[n++]=(Math.pow(c,1/3)%1)*4294967296|0; }
+  }
+  for(let i=0;i<bytes.length;i+=64){
+    const w=new Array(64);
+    for(let j=0;j<16;j++) w[j]=(bytes[i+j*4]<<24)|(bytes[i+j*4+1]<<16)|(bytes[i+j*4+2]<<8)|bytes[i+j*4+3];
+    for(let j=16;j<64;j++){
+      const s0=rr(w[j-15],7)^rr(w[j-15],18)^(w[j-15]>>>3);
+      const s1=rr(w[j-2],17)^rr(w[j-2],19)^(w[j-2]>>>10);
+      w[j]=(w[j-16]+s0+w[j-7]+s1)|0;
+    }
+    let [a,b,c,d,e,f,g,h]=H;
+    for(let j=0;j<64;j++){
+      const S1=rr(e,6)^rr(e,11)^rr(e,25), ch=(e&f)^(~e&g), t1=(h+S1+ch+K[j]+w[j])|0;
+      const S0=rr(a,2)^rr(a,13)^rr(a,22), mj=(a&b)^(a&c)^(b&c), t2=(S0+mj)|0;
+      h=g;g=f;f=e;e=(d+t1)|0;d=c;c=b;b=a;a=(t1+t2)|0;
+    }
+    H[0]=(H[0]+a)|0;H[1]=(H[1]+b)|0;H[2]=(H[2]+c)|0;H[3]=(H[3]+d)|0;
+    H[4]=(H[4]+e)|0;H[5]=(H[5]+f)|0;H[6]=(H[6]+g)|0;H[7]=(H[7]+h)|0;
+  }
+  return H.map(x=>(x>>>0).toString(16).padStart(8,'0')).join('');
+}
+function isLoggedIn(){
+  try { return sessionStorage.getItem('solar_auth') === '1'; } catch(e){ return false; }
+}
+function setLoggedIn(v){
+  try { v ? sessionStorage.setItem('solar_auth','1') : sessionStorage.removeItem('solar_auth'); } catch(e){}
+}
+function showApp(){
+  $('#loginPage').classList.add('hidden');
+  $('#app').classList.remove('hidden');
+}
+function showLogin(){
+  $('#app').classList.add('hidden');
+  $('#loginPage').classList.remove('hidden');
+  $('#pwInput').value = '';
+  $('#loginErr').textContent = '';
+  $('#pwInput').focus();
+}
+
+let failCount = 0;
+$('#loginForm').addEventListener('submit', e => {
+  e.preventDefault();
+  const err = $('#loginErr'), btn = $('#loginBtn');
+  if (btn.disabled) return;
+  try {
+    const hash = sha256($('#pwInput').value);
+    if (hash === CONFIG.passwordHash){
+      failCount = 0; setLoggedIn(true); showApp();
+    } else {
+      failCount++;
+      err.textContent = 'รหัสผ่านไม่ถูกต้อง';
+      $('#pwInput').value = '';
+      // หน่วงเวลาเพิ่มเมื่อกรอกผิดหลายครั้ง
+      btn.disabled = true;
+      setTimeout(() => { btn.disabled = false; }, Math.min(failCount, 5) * 500);
+    }
+  } catch(ex){
+    err.textContent = 'เกิดข้อผิดพลาด: ' + ex.message;
+  }
+});
+
+$('#logoutBtn').addEventListener('click', ()=>{
+  // ออกจากระบบ: ปิดงานที่ค้างอยู่ก่อน
+  state.wash = false; stopLoop(); render();
+  setLoggedIn(false); showLogin();
+});
+
+/* =====================================================
+   ระบบควบคุม
+   ===================================================== */
+const state = { wash:false, emergency:false, active:null }; // active = 'robot' | 'station' | null
+let loopTimer = null;
+
+/* ---------- ไอคอน ---------- */
+const ICONS = {
+  switch:'<svg viewBox="0 0 24 24" fill="none" stroke="#7b8aa0" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="13" width="11" height="7" rx="1.5" fill="#dbe4f0"/><path d="M8 13l8-5"/><circle cx="17" cy="7.5" r="1.6" fill="#7b8aa0"/></svg>',
+  sensor:'<svg viewBox="0 0 24 24" fill="none" stroke="#7b8aa0" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="11" r="4" fill="#dbe4f0"/><path d="M4 19c2-3 5-4 8-4s6 1 8 4"/></svg>'
+};
+$$('[data-icon]').forEach(el => el.innerHTML = ICONS[el.dataset.icon]);
+
+/* ---------- แบตเตอรี่ ---------- */
+function renderBattery(){
+  $('#batRobotTxt').textContent = CONFIG.batteryRobot;
+  $('#batRobotBar').style.width = CONFIG.batteryRobot + '%';
+  $('#batStationTxt').textContent = CONFIG.batteryStation;
+  $('#batStationBar').style.width = CONFIG.batteryStation + '%';
+  $$('.batRobotTxt').forEach(e => e.textContent = CONFIG.batteryRobot);
+  $$('.batRobotBar').forEach(e => e.style.width = CONFIG.batteryRobot + '%');
+  $$('.batStationTxt').forEach(e => e.textContent = CONFIG.batteryStation);
+  $$('.batStationBar').forEach(e => e.style.width = CONFIG.batteryStation + '%');
+}
+
+/* ---------- วาดหน้าจอทั้งหมด ---------- */
+function render(){
+  // Wash
+  $('#washSwitch').classList.toggle('on', state.wash);
+  $('#washSwitch').disabled = state.emergency;
+  $('#washRow').classList.toggle('disabled', state.emergency);
+  $('#washTxt').textContent = state.wash ? 'ON' : 'OFF';
+  // Emergency
+  $('#emSwitch').classList.toggle('on', state.emergency);
+  $('#emTxt').textContent = state.emergency ? 'ON' : 'OFF';
+  // แถบสถานะมุมขวาบน (Emergency สำคัญที่สุด)
+  const pill = $('#statusPill');
+  pill.className = '';
+  if (state.emergency){ pill.textContent = 'Emergency'; pill.classList.add('emergency'); }
+  else if (state.wash){ pill.textContent = 'Online'; pill.classList.add('online'); }
+  else pill.textContent = 'Offline';
+  // ไฟแสดงสถานะของ Robot / Station
+  ['robot','station'].forEach(dev=>{
+    const on = state.active === dev;
+    $$('.led[data-dev="'+dev+'"]').forEach(e => e.classList.toggle('on', on));
+    $$('[data-txt="'+dev+'"]').forEach(e => e.textContent = on ? 'On' : 'Off');
+    $('#tabDot' + dev[0].toUpperCase() + dev.slice(1)).classList.toggle('on', on);
+  });
+}
+
+/* ---------- ลูป Robot -> Station -> Robot ... ---------- */
+function runStep(dev){
+  state.active = dev; render();
+  loopTimer = setTimeout(()=>{
+    state.active = null; render();
+    runStep(dev === 'robot' ? 'station' : 'robot');
+  }, CONFIG.stepMs);
+}
+function startLoop(){ stopLoop(); runStep('robot'); }
+function stopLoop(){ clearTimeout(loopTimer); loopTimer = null; state.active = null; }
+
+/* ---------- ปุ่ม Wash ---------- */
+$('#washSwitch').addEventListener('click', ()=>{
+  if (state.emergency) return;
+  state.wash = !state.wash;
+  state.wash ? startLoop() : stopLoop();
+  render();
+  // TODO: ส่งคำสั่งไปยัง ESP32 ตรงนี้ (เช่น MQTT / Firebase / HTTP)
+});
+
+/* ---------- ปุ่ม Emergency + Pop-up ยืนยัน ---------- */
+const modalBg = $('#modalBg');
+const emSwitch = $('#emSwitch');
+
+function openModal(){
+  emSwitch.classList.add('on');            // ปุ่มเป็นสีแดงทันทีที่กด (ยังไม่เริ่มทำงานจริง)
+  modalBg.classList.remove('hidden');
+  $('#cancelBtn').focus();
+}
+function closeModal(){ modalBg.classList.add('hidden'); }
+
+emSwitch.addEventListener('click', ()=>{
+  if (state.emergency){
+    // ปิด Emergency (กลับสู่ปกติ) ไม่ต้องยืนยัน
+    state.emergency = false; render();
+    // TODO: ส่งคำสั่งยกเลิก Emergency ไปยัง ESP32
+  } else {
+    openModal();
+  }
+});
+$('#confirmBtn').addEventListener('click', ()=>{
+  closeModal();
+  state.emergency = true;
+  state.wash = false; stopLoop();          // หยุดทุกอย่างทันที
+  render();
+  // TODO: ส่งคำสั่ง Emergency ไปยัง ESP32
+});
+$('#cancelBtn').addEventListener('click', ()=>{
+  closeModal();
+  render();                                // คืนปุ่มกลับเป็นสีเทา
+});
+modalBg.addEventListener('click', e => { if (e.target === modalBg) $('#cancelBtn').click(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && !modalBg.classList.contains('hidden')) $('#cancelBtn').click();
+});
+
+/* ---------- แท็บ ---------- */
+$$('.tab').forEach(t => t.addEventListener('click', ()=>{
+  $$('.tab').forEach(x => x.classList.toggle('active', x === t));
+  ['system','robot','station'].forEach(p =>
+    $('#page-'+p).classList.toggle('hidden', p !== t.dataset.tab));
+}));
+
+/* ---------- เริ่มต้น ---------- */
+renderBattery(); render();
+isLoggedIn() ? showApp() : showLogin();
+</script>
+</body>
+</html>
